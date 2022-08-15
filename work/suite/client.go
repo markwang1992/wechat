@@ -1,6 +1,6 @@
 package suite
 
-// Client 第三方应用实例
+// Client 第三方应用凭证相关接口实例
 type Client struct {
 	SuiteAccessToken string
 }

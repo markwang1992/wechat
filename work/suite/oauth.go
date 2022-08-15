@@ -71,7 +71,10 @@ func (r *Client) GetUserDetail3rd(request *GetUserDetail3rdRequest) (*GetUserDet
 		response []byte
 		err      error
 	)
-	jsonData, _ := json.Marshal(request)
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
 	response, err = util.HTTPPost(fmt.Sprintf(GetUserDetail3rdURL, r.SuiteAccessToken), string(jsonData))
 	if err != nil {
 		return nil, err

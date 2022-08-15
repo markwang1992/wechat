@@ -9,6 +9,8 @@ import (
 const (
 	// GetPermanentCodeURL 获取企业永久授权码
 	GetPermanentCodeURL = "https://qyapi.weixin.qq.com/cgi-bin/service/get_permanent_code?suite_access_token=%s"
+	// SetSessionInfoURL 设置授权配置
+	SetSessionInfoURL = "https://qyapi.weixin.qq.com/cgi-bin/service/set_session_info?suite_access_token=%s"
 )
 
 type (
@@ -48,9 +50,9 @@ type (
 				RoundLogoUrl     string `json:"round_logo_url"`
 				SquareLogoUrl    string `json:"square_logo_url"`
 				Appid            int    `json:"appid"`
-				AuthMode         int    `json:"auth_mode,omitempty"`
-				IsCustomizedApp  bool   `json:"is_customized_app,omitempty"`
-				AuthFromThirdapp bool   `json:"auth_from_thirdapp,omitempty"`
+				AuthMode         int    `json:"auth_mode"`
+				IsCustomizedApp  bool   `json:"is_customized_app"`
+				AuthFromThirdapp bool   `json:"auth_from_thirdapp"`
 				Privilege        struct {
 					Level      int      `json:"level"`
 					AllowParty []int    `json:"allow_party"`
@@ -59,7 +61,7 @@ type (
 					ExtraParty []int    `json:"extra_party"`
 					ExtraUser  []string `json:"extra_user"`
 					ExtraTag   []int    `json:"extra_tag"`
-				} `json:"privilege,omitempty"`
+				} `json:"privilege"`
 				SharedFrom struct {
 					Corpid    string `json:"corpid"`
 					ShareType int    `json:"share_type"`
@@ -81,20 +83,65 @@ type (
 	}
 )
 
+// GetPermanentCode 获取永久授权码
+// see https://developer.work.weixin.qq.com/document/path/90603
 func (r *Client) GetPermanentCode(request *GetPermanentCodeRequest) (*GetPermanentCodeResponse, error) {
 	var (
 		response []byte
 		err      error
 	)
-	jsonData, _ := json.Marshal(request)
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
 	response, err = util.HTTPPost(fmt.Sprintf(GetPermanentCodeURL, r.SuiteAccessToken), string(jsonData))
 	if err != nil {
 		return nil, err
 	}
-	var result *GetPermanentCodeResponse
-	err = util.DecodeWithError(response, &result, "GetPermanentCode")
+	result := &GetPermanentCodeResponse{}
+	err = util.DecodeWithError(response, result, "GetPermanentCode")
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+type (
+	// SetSessionInfoRequest 设置授权配置请求
+	SetSessionInfoRequest struct {
+		PreAuthCode string `json:"pre_auth_code"`
+		SessionInfo struct {
+			AuthType int `json:"auth_type"`
+		} `json:"session_info"`
+	}
+	// SetSessionInfoResponse 设置授权配置相应
+	SetSessionInfoResponse struct {
+		util.CommonError
+	}
+)
+
+// SetSessionInfo 设置授权配置
+// see https://developer.work.weixin.qq.com/document/10975#%E8%AE%BE%E7%BD%AE%E6%8E%88%E6%9D%83%E9%85%8D%E7%BD%AE
+func (r *Client) SetSessionInfo(request *SetSessionInfoRequest) error {
+	var (
+		response []byte
+		err      error
+	)
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+	response, err = util.HTTPPost(fmt.Sprintf(SetSessionInfoURL, r.SuiteAccessToken), string(jsonData))
+	if err != nil {
+		return err
+	}
+	result := &SetSessionInfoResponse{}
+	err = util.DecodeWithError(response, result, "SetSessionInfo")
+	if err != nil {
+		return err
+	}
+	if result.ErrCode == 0 {
+		return nil
+	}
+	return fmt.Errorf(result.ErrMsg)
 }
