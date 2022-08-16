@@ -4,7 +4,6 @@
 package provider
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/silenceper/wechat/v2/util"
 )
@@ -12,6 +11,10 @@ import (
 const (
 	// CreateNewOrderURL 下单购买帐号
 	CreateNewOrderURL = "https://qyapi.weixin.qq.com/cgi-bin/license/create_new_order?provider_access_token=%s"
+	// ListOrderAccountURL 获取订单中的帐号列表
+	ListOrderAccountURL = "https://qyapi.weixin.qq.com/cgi-bin/license/list_order_account?provider_access_token=%s"
+	// ActiveAccountURL 激活帐号
+	ActiveAccountURL = "https://qyapi.weixin.qq.com/cgi-bin/license/active_account?provider_access_token=%s"
 )
 
 type (
@@ -32,7 +35,7 @@ type (
 	// CreateNewOrderResponse 下单购买帐号响应
 	CreateNewOrderResponse struct {
 		util.CommonError
-		OrderId string `json:"order_id"`
+		OrderID string `json:"order_id"`
 	}
 )
 
@@ -40,19 +43,79 @@ type (
 // see https://developer.work.weixin.qq.com/document/path/95644
 func (r *Client) CreateNewOrder(request *CreateNewOrderRequest) (string, error) {
 	var (
-		response []byte
 		err      error
+		response []byte
 	)
-	jsonData, err := json.Marshal(request)
-	if err != nil {
-		return "", err
-	}
-	if response, err = util.HTTPPost(fmt.Sprintf(CreateNewOrderURL, r.AccessToken), string(jsonData)); err != nil {
+	if response, err = util.PostJSON(fmt.Sprintf(CreateNewOrderURL, r.AccessToken), request); err != nil {
 		return "", err
 	}
 	result := &CreateNewOrderResponse{}
 	if err = util.DecodeWithError(response, result, "CreateNewOrder"); err != nil {
 		return "", err
 	}
-	return result.OrderId, nil
+	return result.OrderID, nil
+}
+
+type (
+	ListOrderAccountRequest struct {
+		OrderID string `json:"order_id"`
+		Limit   int    `json:"limit"`
+		Cursor  string `json:"cursor"`
+	}
+	ListOrderAccountResponse struct {
+		util.CommonError
+		NextCursor  string         `json:"next_cursor"`
+		HasMore     int            `json:"has_more"`
+		AccountList []*AccountList `json:"account_list"`
+	}
+	AccountList struct {
+		ActiveCode string `json:"active_code"`
+		UserID     string `json:"userid"`
+		Type       int    `json:"type"`
+	}
+)
+
+// ListOrderAccount 获取订单中的帐号列表
+// see https://developer.work.weixin.qq.com/document/path/95649
+func (r *Client) ListOrderAccount(request *ListOrderAccountRequest) (*ListOrderAccountResponse, error) {
+	var (
+		err      error
+		response []byte
+	)
+	if response, err = util.PostJSON(fmt.Sprintf(ListOrderAccountURL, r.AccessToken), request); err != nil {
+		return nil, err
+	}
+	result := &ListOrderAccountResponse{}
+	if err = util.DecodeWithError(response, result, "ListOrderAccount"); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type (
+	ActiveAccountRequest struct {
+		ActiveCode string `json:"active_code"`
+		CorpID     string `json:"corpid"`
+		UserID     string `json:"userid"`
+	}
+	ActiveAccountResponse struct {
+		util.CommonError
+	}
+)
+
+// ActiveAccount 激活帐号
+// see https://developer.work.weixin.qq.com/document/path/95553
+func (r *Client) ActiveAccount(request *ActiveAccountRequest) (*ActiveAccountResponse, error) {
+	var (
+		err      error
+		response []byte
+	)
+	if response, err = util.PostJSON(fmt.Sprintf(ActiveAccountURL, r.AccessToken), request); err != nil {
+		return nil, err
+	}
+	result := &ActiveAccountResponse{}
+	if err = util.DecodeWithError(response, result, "ActiveAccount"); err != nil {
+		return nil, err
+	}
+	return result, nil
 }
