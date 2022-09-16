@@ -27,6 +27,10 @@ const (
 	GetGroupChatStatByDayURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/statistic_group_by_day?access_token=%s"
 	// FetchExternalContactUserListURL 获取客户列表
 	FetchExternalContactUserListURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token=%s&userid=%s"
+	// FetchExternalContactUserDetailURL 获取客户详情
+	FetchExternalContactUserDetailURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get?access_token=%s&external_userid=%s&cursor=%s"
+	// FetchBatchExternalContactUserDetailURL 批量获取客户详情
+	FetchBatchExternalContactUserDetailURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/batch/get_by_user?access_token=%s"
 )
 
 type (
@@ -360,8 +364,7 @@ func (r *Client) GetGroupChatStat(req *GetGroupChatStatRequest) (*GetGroupChatSt
 		return nil, err
 	}
 	result := &GetGroupChatStatResponse{}
-	err = util.DecodeWithError(response, result, "GetGroupChatStat")
-	if err != nil {
+	if err = util.DecodeWithError(response, result, "GetGroupChatStat"); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -397,8 +400,7 @@ func (r *Client) GetGroupChatStatByDay(req *GetGroupChatStatByDayRequest) ([]Get
 		return nil, err
 	}
 	var result GetGroupChatStatByDayResponse
-	err = util.DecodeWithError(response, &result, "GetGroupChatStatByDay")
-	if err != nil {
+	if err = util.DecodeWithError(response, &result, "GetGroupChatStatByDay"); err != nil {
 		return nil, err
 	}
 	return result.Items, nil
@@ -425,4 +427,101 @@ func (r *Client) GetExternalUserList(userID string) ([]string, error) {
 		return nil, err
 	}
 	return result.ExternalUserID, nil
+}
+
+// ExternalUserDetailResponse 外部联系人详情响应
+type ExternalUserDetailResponse struct {
+	util.CommonError
+	ExternalUser
+}
+
+// ExternalUser 外部联系人
+type ExternalUser struct {
+	ExternalUserID  string       `json:"external_userid"`
+	Name            string       `json:"name"`
+	Avatar          string       `json:"avatar"`
+	Type            int64        `json:"type"`
+	Gender          int64        `json:"gender"`
+	UnionID         string       `json:"unionid"`
+	Position        string       `json:"position"`
+	CorpName        string       `json:"corp_name"`
+	CorpFullName    string       `json:"corp_full_name"`
+	ExternalProfile string       `json:"external_profile"`
+	FollowUser      []FollowUser `json:"follow_user"`
+	NextCursor      string       `json:"next_cursor"`
+}
+
+// FollowUser 跟进用户（指企业内部用户）
+type FollowUser struct {
+	UserID         string        `json:"userid"`
+	Remark         string        `json:"remark"`
+	Description    string        `json:"description"`
+	CreateTime     string        `json:"create_time"`
+	Tags           []Tag         `json:"tags"`
+	RemarkCorpName string        `json:"remark_corp_name"`
+	RemarkMobiles  []string      `json:"remark_mobiles"`
+	OperUserID     string        `json:"oper_userid"`
+	AddWay         int64         `json:"add_way"`
+	WeChatChannels WechatChannel `json:"wechat_channels"`
+	State          string        `json:"state"`
+}
+
+// Tag 已绑定在外部联系人的标签
+type Tag struct {
+	GroupName string `json:"group_name"`
+	TagName   string `json:"tag_name"`
+	Type      int64  `json:"type"`
+	TagID     string `json:"tag_id"`
+}
+
+// WechatChannel 视频号添加的场景
+type WechatChannel struct {
+	NickName string `json:"nickname"`
+	Source   string `json:"source"`
+}
+
+// GetExternalUserDetail 获取外部联系人详情
+// @see https://developer.work.weixin.qq.com/document/path/92265
+func (r *Client) GetExternalUserDetail(externalUserID string, nextCursor ...string) (*ExternalUser, error) {
+	var (
+		response []byte
+		err      error
+	)
+	if response, err = util.HTTPGet(fmt.Sprintf(FetchExternalContactUserDetailURL, r.AccessToken, externalUserID, nextCursor)); err != nil {
+		return nil, err
+	}
+	var result ExternalUserDetailResponse
+	if err = util.DecodeWithError(response, &result, "GetExternalUserDetail"); err != nil {
+		return nil, err
+	}
+	return &result.ExternalUser, nil
+}
+
+// BatchGetExternalUserDetailsRequest 批量获取外部联系人详情请求
+type BatchGetExternalUserDetailsRequest struct {
+	UserIDList []string `json:"userid_list"`
+	Cursor     string   `json:"cursor"`
+	Limit      int      `json:"limit"`
+}
+
+// ExternalUserDetailListResponse 批量获取外部联系人详情响应
+type ExternalUserDetailListResponse struct {
+	util.CommonError
+	ExternalContactList []ExternalUser `json:"external_contact_list"`
+}
+
+// BatchGetExternalUserDetails 批量获取外部联系人详情
+func (r *Client) BatchGetExternalUserDetails(req *BatchGetExternalUserDetailsRequest) ([]ExternalUser, error) {
+	var (
+		err      error
+		response []byte
+	)
+	if response, err = util.PostJSON(fmt.Sprintf(FetchBatchExternalContactUserDetailURL, r.AccessToken), req); err != nil {
+		return nil, err
+	}
+	var result ExternalUserDetailListResponse
+	if err = util.DecodeWithError(response, &result, "BatchGetExternalUserDetails"); err != nil {
+		return nil, err
+	}
+	return result.ExternalContactList, nil
 }
