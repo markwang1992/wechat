@@ -507,7 +507,7 @@ type BatchGetExternalUserDetailsRequest struct {
 // ExternalUserDetailListResponse 批量获取外部联系人详情响应
 type ExternalUserDetailListResponse struct {
 	util.CommonError
-	ExternalContactList []ExternalUser `json:"external_contact_list"`
+	ExternalContactList []*ExternalUser `json:"external_contact_list"`
 }
 
 // BatchGetExternalUserDetails 批量获取外部联系人详情
