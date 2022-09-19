@@ -28,7 +28,7 @@ const (
 	// FetchExternalContactUserListURL 获取客户列表
 	FetchExternalContactUserListURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token=%s&userid=%s"
 	// FetchExternalContactUserDetailURL 获取客户详情
-	FetchExternalContactUserDetailURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get?access_token=%s&external_userid=%s&cursor=%s"
+	FetchExternalContactUserDetailURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get?access_token=%s&external_userid=%s"
 	// FetchBatchExternalContactUserDetailURL 批量获取客户详情
 	FetchBatchExternalContactUserDetailURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/batch/get_by_user?access_token=%s"
 )
@@ -482,12 +482,12 @@ type WechatChannel struct {
 
 // GetExternalUserDetail 获取外部联系人详情
 // @see https://developer.work.weixin.qq.com/document/path/92265
-func (r *Client) GetExternalUserDetail(externalUserID string, nextCursor ...string) (*ExternalUser, error) {
+func (r *Client) GetExternalUserDetail(externalUserID string) (*ExternalUser, error) {
 	var (
 		response []byte
 		err      error
 	)
-	if response, err = util.HTTPGet(fmt.Sprintf(FetchExternalContactUserDetailURL, r.AccessToken, externalUserID, nextCursor)); err != nil {
+	if response, err = util.HTTPGet(fmt.Sprintf(FetchExternalContactUserDetailURL, r.AccessToken, externalUserID)); err != nil {
 		return nil, err
 	}
 	var result ExternalUserDetailResponse
