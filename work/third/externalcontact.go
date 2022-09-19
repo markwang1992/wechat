@@ -511,7 +511,7 @@ type ExternalUserDetailListResponse struct {
 }
 
 // BatchGetExternalUserDetails 批量获取外部联系人详情
-func (r *Client) BatchGetExternalUserDetails(req *BatchGetExternalUserDetailsRequest) ([]ExternalUser, error) {
+func (r *Client) BatchGetExternalUserDetails(req *BatchGetExternalUserDetailsRequest) (*ExternalUserDetailListResponse, error) {
 	var (
 		err      error
 		response []byte
@@ -519,9 +519,9 @@ func (r *Client) BatchGetExternalUserDetails(req *BatchGetExternalUserDetailsReq
 	if response, err = util.PostJSON(fmt.Sprintf(FetchBatchExternalContactUserDetailURL, r.AccessToken), req); err != nil {
 		return nil, err
 	}
-	var result ExternalUserDetailListResponse
-	if err = util.DecodeWithError(response, &result, "BatchGetExternalUserDetails"); err != nil {
+	result := &ExternalUserDetailListResponse{}
+	if err = util.DecodeWithError(response, result, "BatchGetExternalUserDetails"); err != nil {
 		return nil, err
 	}
-	return result.ExternalContactList, nil
+	return result, nil
 }
