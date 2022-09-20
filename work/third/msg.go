@@ -21,41 +21,50 @@ const (
 
 // AddMsgTemplateRequest 创建企业群发请求
 type AddMsgTemplateRequest struct {
-	ChatType       string   `json:"chat_type"`
-	ExternalUserID []string `json:"external_userid"`
-	Sender         string   `json:"sender"`
-	Text           struct {
-		Content string `json:"content"`
-	} `json:"text"`
-	Attachments []*Attachment `json:"attachments"`
+	ChatType       string        `json:"chat_type"`
+	ExternalUserID []string      `json:"external_userid"`
+	Sender         string        `json:"sender"`
+	Text           MsgText       `json:"text"`
+	Attachments    []*Attachment `json:"attachments"`
 }
 
-// Attachment 创建企业群发附件
-type Attachment struct {
-	MsgType string `json:"msgtype"`
-	Image   struct {
+type MsgText struct {
+	Content string `json:"content"`
+}
+
+type (
+	// Attachment 创建企业群发附件
+	Attachment struct {
+		MsgType     string                `json:"msgtype"`
+		Image       AttachmentImg         `json:"image,omitempty"`
+		Link        AttachmentLink        `json:"link,omitempty"`
+		MiniProgram AttachmentMiniProgram `json:"miniprogram,omitempty"`
+		Video       AttachmentVideo       `json:"video,omitempty"`
+		File        AttachmentFile        `json:"file,omitempty"`
+	}
+	AttachmentImg struct {
 		MediaID string `json:"media_id"`
 		PicURL  string `json:"pic_url"`
-	} `json:"image,omitempty"`
-	Link struct {
+	}
+	AttachmentLink struct {
 		Title  string `json:"title"`
 		PicURL string `json:"picurl"`
 		Desc   string `json:"desc"`
 		URL    string `json:"url"`
-	} `json:"link,omitempty"`
-	MiniProgram struct {
+	}
+	AttachmentMiniProgram struct {
 		Title      string `json:"title"`
 		PicMediaID string `json:"pic_media_id"`
 		AppID      string `json:"appid"`
 		Page       string `json:"page"`
-	} `json:"miniprogram,omitempty"`
-	Video struct {
+	}
+	AttachmentVideo struct {
 		MediaID string `json:"media_id"`
-	} `json:"video,omitempty"`
-	File struct {
+	}
+	AttachmentFile struct {
 		MediaID string `json:"media_id"`
-	} `json:"file,omitempty"`
-}
+	}
+)
 
 // AddMsgTemplateResponse 创建企业群发响应
 type AddMsgTemplateResponse struct {
@@ -162,10 +171,8 @@ func (r *Client) GetGroupMsgSendResult(req *GetGroupMsgSendResultRequest) (*GetG
 
 // SendWelcomeMsgRequest 发送新客户欢迎语请求
 type SendWelcomeMsgRequest struct {
-	WelcomeCode string `json:"welcome_code"`
-	Text        struct {
-		Content string `json:"content"`
-	} `json:"text"`
+	WelcomeCode string        `json:"welcome_code"`
+	Text        MsgText       `json:"text"`
 	Attachments []*Attachment `json:"attachments"`
 }
 
