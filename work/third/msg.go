@@ -23,7 +23,7 @@ const (
 type AddMsgTemplateRequest struct {
 	ChatType       string        `json:"chat_type"`
 	ExternalUserID []string      `json:"external_userid"`
-	Sender         string        `json:"sender"`
+	Sender         string        `json:"sender,omitempty"`
 	Text           MsgText       `json:"text"`
 	Attachments    []*Attachment `json:"attachments"`
 }
