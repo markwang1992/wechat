@@ -97,7 +97,7 @@ type GetGroupMsgListV2Request struct {
 	ChatType   string `json:"chat_type"`
 	StartTime  int    `json:"start_time"`
 	EndTime    int    `json:"end_time"`
-	Creator    string `json:"creator"`
+	Creator    string `json:"creator,omitempty"`
 	FilterType int    `json:"filter_type"`
 	Limit      int    `json:"limit"`
 	Cursor     string `json:"cursor"`
