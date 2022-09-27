@@ -113,7 +113,7 @@ type GetGroupMsgListV2Response struct {
 type GroupMsg struct {
 	MsgID       string        `json:"msgid"`
 	Creator     string        `json:"creator"`
-	CreateTime  string        `json:"create_time"`
+	CreateTime  int           `json:"create_time"`
 	CreateType  int           `json:"create_type"`
 	Text        MsgText       `json:"text"`
 	Attachments []*Attachment `json:"attachments"`
