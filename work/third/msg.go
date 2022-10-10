@@ -19,6 +19,8 @@ const (
 	GetGroupMsgSendResultURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_send_result?access_token=%s"
 	// SendWelcomeMsgURL 发送新客户欢迎语
 	SendWelcomeMsgURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/send_welcome_msg?access_token=%s"
+	// GroupWelcomeTemplateAddURL 添加入群欢迎语素材
+	GroupWelcomeTemplateAddURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/group_welcome_template/add?access_token=%s"
 )
 
 // AddMsgTemplateRequest 创建企业群发请求
@@ -242,4 +244,39 @@ func (r *Client) SendWelcomeMsg(req *SendWelcomeMsgRequest) error {
 		return err
 	}
 	return nil
+}
+
+// GroupWelcomeTemplateAddRequest 添加入群欢迎语素材请求
+type GroupWelcomeTemplateAddRequest struct {
+	Text        MsgText               `json:"text"`
+	Image       AttachmentImg         `json:"image"`
+	Link        AttachmentLink        `json:"link"`
+	MiniProgram AttachmentMiniProgram `json:"miniprogram"`
+	File        AttachmentFile        `json:"file"`
+	Video       AttachmentVideo       `json:"video"`
+	AgentID     int                   `json:"agentid"`
+	Notify      int                   `json:"notify"`
+}
+
+// GroupWelcomeTemplateAddResponse 添加入群欢迎语素材响应
+type GroupWelcomeTemplateAddResponse struct {
+	util.CommonError
+	TemplateID string `json:"template_id"`
+}
+
+// GroupWelcomeTemplateAdd 添加入群欢迎语素材
+// see https://developer.work.weixin.qq.com/document/path/92366#%E6%B7%BB%E5%8A%A0%E5%85%A5%E7%BE%A4%E6%AC%A2%E8%BF%8E%E8%AF%AD%E7%B4%A0%E6%9D%90
+func (r *Client) GroupWelcomeTemplateAdd(req *GroupWelcomeTemplateAddRequest) (*GroupWelcomeTemplateAddResponse, error) {
+	var (
+		err      error
+		response []byte
+	)
+	if response, err = util.PostJSON(fmt.Sprintf(GroupWelcomeTemplateAddURL, r.AccessToken), req); err != nil {
+		return nil, err
+	}
+	result := &GroupWelcomeTemplateAddResponse{}
+	if err = util.DecodeWithError(response, result, "GroupWelcomeTemplateAdd"); err != nil {
+		return nil, err
+	}
+	return result, nil
 }
