@@ -432,7 +432,9 @@ func (r *Client) GetExternalUserList(userID string) ([]string, error) {
 // ExternalUserDetailResponse 外部联系人详情响应
 type ExternalUserDetailResponse struct {
 	util.CommonError
-	ExternalUser
+	ExternalContact ExternalUser `json:"external_contact"`
+	FollowUser      []FollowUser `json:"follow_user"`
+	NextCursor      string       `json:"next_cursor"`
 }
 
 // ExternalUser 外部联系人
