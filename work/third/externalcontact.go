@@ -491,7 +491,7 @@ func (r *Client) GetExternalUserDetail(externalUserID string) (*ExternalUserDeta
 		return nil, err
 	}
 	result := &ExternalUserDetailResponse{}
-	if err = util.DecodeWithError(response, &result, "GetExternalUserDetail"); err != nil {
+	if err = util.DecodeWithError(response, result, "GetExternalUserDetail"); err != nil {
 		return nil, err
 	}
 	return result, nil
