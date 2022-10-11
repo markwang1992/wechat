@@ -439,18 +439,16 @@ type ExternalUserDetailResponse struct {
 
 // ExternalUser 外部联系人
 type ExternalUser struct {
-	ExternalUserID  string       `json:"external_userid"`
-	Name            string       `json:"name"`
-	Avatar          string       `json:"avatar"`
-	Type            int64        `json:"type"`
-	Gender          int64        `json:"gender"`
-	UnionID         string       `json:"unionid"`
-	Position        string       `json:"position"`
-	CorpName        string       `json:"corp_name"`
-	CorpFullName    string       `json:"corp_full_name"`
-	ExternalProfile string       `json:"external_profile"`
-	FollowUser      []FollowUser `json:"follow_user"`
-	NextCursor      string       `json:"next_cursor"`
+	ExternalUserID  string `json:"external_userid"`
+	Name            string `json:"name"`
+	Avatar          string `json:"avatar"`
+	Type            int64  `json:"type"`
+	Gender          int64  `json:"gender"`
+	UnionID         string `json:"unionid"`
+	Position        string `json:"position"`
+	CorpName        string `json:"corp_name"`
+	CorpFullName    string `json:"corp_full_name"`
+	ExternalProfile string `json:"external_profile"`
 }
 
 // FollowUser 跟进用户（指企业内部用户）
