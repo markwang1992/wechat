@@ -482,7 +482,7 @@ type WechatChannel struct {
 
 // GetExternalUserDetail 获取外部联系人详情
 // @see https://developer.work.weixin.qq.com/document/path/92265
-func (r *Client) GetExternalUserDetail(externalUserID string) (*ExternalUser, error) {
+func (r *Client) GetExternalUserDetail(externalUserID string) (*ExternalUserDetailResponse, error) {
 	var (
 		response []byte
 		err      error
@@ -490,11 +490,11 @@ func (r *Client) GetExternalUserDetail(externalUserID string) (*ExternalUser, er
 	if response, err = util.HTTPGet(fmt.Sprintf(FetchExternalContactUserDetailURL, r.AccessToken, externalUserID)); err != nil {
 		return nil, err
 	}
-	var result ExternalUserDetailResponse
+	result := &ExternalUserDetailResponse{}
 	if err = util.DecodeWithError(response, &result, "GetExternalUserDetail"); err != nil {
 		return nil, err
 	}
-	return &result.ExternalUser, nil
+	return result, nil
 }
 
 // BatchGetExternalUserDetailsRequest 批量获取外部联系人详情请求
