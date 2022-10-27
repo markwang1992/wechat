@@ -31,6 +31,8 @@ const (
 	FetchExternalContactUserDetailURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get?access_token=%s&external_userid=%s"
 	// FetchBatchExternalContactUserDetailURL 批量获取客户详情
 	FetchBatchExternalContactUserDetailURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/batch/get_by_user?access_token=%s"
+	// MarkCropTagURL 为客户打上、删除标签
+	MarkCropTagURL = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/mark_tag?access_token=%s"
 )
 
 type (
@@ -557,4 +559,24 @@ func (r *Client) BatchGetExternalUserDetails(req *BatchGetExternalUserDetailsReq
 		return nil, err
 	}
 	return result, nil
+}
+
+// MarkTagRequest 给客户打标签请求
+type MarkTagRequest struct {
+	UserID         string   `json:"userid"`
+	ExternalUserID string   `json:"external_userid"`
+	AddTag         []string `json:"add_tag"`
+	RemoveTag      []string `json:"remove_tag"`
+}
+
+// MarkTag 为客户打上标签
+func (r *Client) MarkTag(req *MarkTagRequest) error {
+	var (
+		err      error
+		response []byte
+	)
+	if response, err = util.PostJSON(fmt.Sprintf(MarkCropTagURL, r.AccessToken), req); err != nil {
+		return err
+	}
+	return util.DecodeWithCommonError(response, "MarkTag")
 }
